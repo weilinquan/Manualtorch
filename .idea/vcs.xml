@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DataLoader" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nn/function" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nn/optimizer" vcs="Git" />
+  </component>
+</project>
