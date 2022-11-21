@@ -26,9 +26,9 @@ class Module:
         parameters_dict = {'parameter':[], 'gradient':[]}
         if hasattr(self, "parameter"):
             parameters_dict['parameter'].append(self.parameter)
-            parameters_dict['gradient'].append(self.gradient)
+            parameters_dict['gradient'].append(self.parameter.gradient)
         for module in self.inputs:
             if isinstance(module, Module):
-                parameters_dict['parameter']+=module.parameters['parameter']
-                parameters_dict['gradient']+=module.parameters['gradient']
+                parameters_dict['parameter']+=module.parameters()['parameter']
+                parameters_dict['gradient']+=module.parameters()['gradient']
         return parameters_dict

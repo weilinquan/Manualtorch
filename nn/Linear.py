@@ -18,9 +18,7 @@ class Linear(Module):
         return self.forward(x)
 
     def backward(self, grad):
-        self.parameter.gradient = numpy.matmul(self.inputs[0].data.T, self.data)
-        self.parameter.gradient = numpy.matmul(self.parameter.gradient, grad)
+        self.parameter.gradient = numpy.matmul(self.inputs[0].data.T, grad)
         if(isinstance(self.inputs[0], Module)):
-            current_grad = numpy.matmul(self.data, self.parameter.data.T)
-            current_grad = numpy.matmul(grad, current_grad)
+            current_grad = numpy.matmul(grad, self.parameter.data.T)
             self.inputs[0].backward(current_grad)

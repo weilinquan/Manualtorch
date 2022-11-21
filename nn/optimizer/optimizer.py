@@ -45,15 +45,16 @@ class Optimizer(object):
 """
 
 import numpy as np
-import torch
 
 
 class SGD:
     def __init__(self, lr=0.01):
         self.lr = lr
 
-    def __call__(self, params, grads):
-        params -= self.lr * grads
+    def __call__(self, params):
+        for i in range(len(params['parameter'])):
+            params['parameter'][i].data -= self.lr * params['gradient'][i]
+        #params -= self.lr * grads
 
 
 class Momentum:
@@ -97,7 +98,7 @@ class Adam:
 
         params -= alpha * self.m / (np.sqrt(self.v) + self.eps)
 
-
+'''
 def check_optim(optim_numpy, optim_torch, p, p_torch):
     """
     check with y = p * x^2
@@ -151,7 +152,7 @@ a_torch = torch.tensor(a_numpy, requires_grad=True)
 adam_numpy = Adam(lr=0.1, betas=(0.9, 0.99), eps=0.001)
 adam_torch = torch.optim.Adam([a_torch], lr=0.1, betas=(0.9, 0.99), eps=0.001)
 check_optim(adam_numpy, adam_torch, a_numpy, a_torch)
-
+'''
 """
 --- 检查SGD ---
 [ 1.671526045435  0.658974920984  0.518721027022  1.254968104394  1.594004424417]
