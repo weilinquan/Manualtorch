@@ -1,50 +1,7 @@
-"""
-class Optimizer(object):
-    def __init__(self,params,defaults):
 
-        self.defaults=defaults
-
-        self.param_groups=[]
-
-        param_groups=list(params)
-
-        if not isinstance(param_groups[0],dict):
-            param_groups=[{'params':param_groups}]
-
-        for param_group in param_groups:
-            self.add_param_group(param_group)
-
-    def add_param_group(self,param_group):
-        assert isinstance(param_group,dict),"param group must be a dict"
-
-        params=param_group['params']
-
-        param_group['params']=list(params)
-
-        for name,default in self.defaults.items():
-            param_group.setdefault((name,default))
-
-        params=param_group['params']
-        param_set=set()
-        for group in self.param_groups:
-            param_set.update(set(group['params']))
-
-        self.param_groups.append(param_group)
-
-    def step(self):
-
-        raise NotImplementedError
-
-    def zero_grad(self):
-        for group in self.param_groups:
-            for p in group['parms']:
-                if p.grad is not None:
-                            p.grad=0
-                            #p.grad.zero_()#梯度清零，考虑一下怎么写
-
-"""
 
 import numpy as np
+
 
 
 class SGD:
@@ -63,33 +20,56 @@ class Momentum:
         self.momentum = momentum
         self.v = None
 
-    def __call__(self, params, grads):
+    def __call__(self, params):
         if self.v is None:
+            self.v = np.zeros_like(params['parameter'])
+
+        for i in range(len(params['parameter'])):
+            self.v = self.momentum * self.v + params['gradient'][i]
+            params['parameter'][i].data -= self.lr * self.v
+
+            """
+            if self.v is None:
             self.v = np.zeros_like(params)
 
         self.v = self.momentum * self.v + grads
         params -= self.lr * self.v
+            """
 
-
+"""
+调用方法：
+momentum_numpy = Momentum(0.00001, 0.9)
+momentum_numpy(params)
+"""
 
 class Adam:
-    def __init__(self, lr=0.01, betas=(0.9, 0.999), eps=1e-08):
+    def __init__(self, lr=0.01, betas=(0.9, 0.999), eps=1e-08):#betas直衰减率，在Adam中一般取0.9与0.999
         self.lr = lr
         self.beta1 = betas[0]
         self.beta2 = betas[1]
-        self.eps = eps
-        self.m = None
-        self.v = None
+        self.eps = eps#极小值，防止分母为0
+        self.m = None#一阶矩
+        self.v = None#二阶矩
         self.n = 0
 
-    def __call__(self, params, grads):
+    def __call__(self, params):
         if self.m is None:
-            self.m = np.zeros_like(params)
+            self.m = np.zeros_like(params['parameter'])
         if self.v is None:
-            self.v = np.zeros_like(params)
+            self.v = np.zeros_like(params['parameter'])
 
         self.n += 1
 
+        for i in range(len(params['parameter'])):
+            self.m = self.beta1 * self.m + (1 - self.beta1) * params['gradient'][i]
+            self.v = self.beta2 * self.v + (1 - self.beta2) * np.square(params['gradient'][i])
+
+            alpha = self.lr * np.sqrt(1 - np.power(self.beta2, self.n))
+            alpha = alpha / (1 - np.power(self.beta1, self.n))
+
+            params['parameter'][i].data -= alpha * self.m / (np.sqrt(self.v) + self.eps)
+            """
+            
         self.m = self.beta1 * self.m + (1 - self.beta1) * grads
         self.v = self.beta2 * self.v + (1 - self.beta2) * np.square(grads)
 
@@ -97,13 +77,26 @@ class Adam:
         alpha = alpha / (1 - np.power(self.beta1, self.n))
 
         params -= alpha * self.m / (np.sqrt(self.v) + self.eps)
+"""
 
-'''
+"""
+调用方法：
+adam_numpy = Adam(lr=0.0001, betas=(0.9, 0.99), eps=0.001)
+adam_numpy(params)
+"""
+
+
+
+
+"""
+
 def check_optim(optim_numpy, optim_torch, p, p_torch):
     """
+"""
     check with y = p * x^2
     optim param p
     """
+"""
     x_size = 5
     x = np.random.random(x_size)
     x_torch = torch.tensor(x, requires_grad=True)
@@ -152,7 +145,8 @@ a_torch = torch.tensor(a_numpy, requires_grad=True)
 adam_numpy = Adam(lr=0.1, betas=(0.9, 0.99), eps=0.001)
 adam_torch = torch.optim.Adam([a_torch], lr=0.1, betas=(0.9, 0.99), eps=0.001)
 check_optim(adam_numpy, adam_torch, a_numpy, a_torch)
-'''
+"""
+
 """
 --- 检查SGD ---
 [ 1.671526045435  0.658974920984  0.518721027022  1.254968104394  1.594004424417]
