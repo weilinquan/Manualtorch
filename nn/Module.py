@@ -22,13 +22,13 @@ class Module:
             if(isinstance(i, Module)):
                 i.backward(grad)
     
-    def parameters(self):
+    def parameters(self, attrs_dict):
         parameters_dict = {'parameter':[], 'gradient':[]}
-        if hasattr(self, "parameter"):
-            parameters_dict['parameter'].append(self.parameter)
-            parameters_dict['gradient'].append(self.parameter.gradient)
-        for module in self.inputs:
-            if isinstance(module, Module):
-                parameters_dict['parameter']+=module.parameters()['parameter']
-                parameters_dict['gradient']+=module.parameters()['gradient']
+        for k, v in attrs_dict.items():
+            if isinstance(v, Parameter):
+                parameters_dict['parameter'].append(v)
+                parameters_dict['gradient'].append(v.gradient)
+            if isinstance(v, Module):
+                parameters_dict['parameter']+=v.parameters(v.__dict__)['parameter']
+                parameters_dict['gradient']+=v.parameters(v.__dict__)['gradient']
         return parameters_dict
