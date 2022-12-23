@@ -61,13 +61,13 @@ class Adam:
         self.n += 1
 
         for i in range(len(params['parameter'])):
-            self.m = self.beta1 * self.m + (1 - self.beta1) * params['gradient'][i]
-            self.v = self.beta2 * self.v + (1 - self.beta2) * np.square(params['gradient'][i])
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * params['gradient'][i]
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * np.square(params['gradient'][i])
 
             alpha = self.lr * np.sqrt(1 - np.power(self.beta2, self.n))
             alpha = alpha / (1 - np.power(self.beta1, self.n))
 
-            params['parameter'][i].data -= alpha * self.m / (np.sqrt(self.v) + self.eps)
+            params['parameter'][i].data -= alpha * self.m[i] / (np.sqrt(self.v[i]) + self.eps)
             """
             
         self.m = self.beta1 * self.m + (1 - self.beta1) * grads
